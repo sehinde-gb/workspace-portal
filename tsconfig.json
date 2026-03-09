@@ -13,6 +13,11 @@
     "declaration": false,
     "experimentalDecorators": true,
     "moduleResolution": "node",
+    "paths": {
+      "shared-ui": [
+        "./dist/shared-ui"
+      ]
+    },
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",

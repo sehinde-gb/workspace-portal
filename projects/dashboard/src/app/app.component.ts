@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
+import { PageHeaderComponent, InfoCardComponent } from 'shared-ui';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [PageHeaderComponent, InfoCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
