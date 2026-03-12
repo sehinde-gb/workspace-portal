@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-shared-ui',
+  selector: 'lib-shared-data',
   standalone: true,
   imports: [],
   template: `
     <p>
-      shared-ui works!
+      shared-data works!
     </p>
   `,
   styles: ``
 })
-export class SharedUiComponent {
+export class SharedDataComponent {
 
 }

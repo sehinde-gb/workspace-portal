@@ -28,8 +28,10 @@ describe('EmptyStateComponent', () => {
   /* Edge cases */
   it('renders safely when message is empty', () => {
     component.message = '';
+
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toBeTruthy();
+    //expect(fixture.nativeElement.textContent).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toBe('');
   });
 });

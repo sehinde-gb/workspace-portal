@@ -3,7 +3,8 @@
   subtitle="This content is coming from the dashboard micro-frontend">
 </lib-page-header>
 
-<lib-info-card label="Status" value="Online"></lib-info-card>
 
-<!-- <h2>Dashboard Remote</h2>
-<p>This content is coming from the dashboard micro-frontend.</p> -->
+<app-dashboard-stats [stats]="stats"></app-dashboard-stats>
+
+<app-recent-orders [orders]="recentOrders"></app-recent-orders>
+

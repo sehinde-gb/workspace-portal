@@ -44,5 +44,6 @@ describe('InfoCardComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Status');
+    //expect(fixture.nativeElement.textContent).toContain('');
   });
 });

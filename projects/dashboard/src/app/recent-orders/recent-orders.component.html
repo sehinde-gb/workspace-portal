@@ -1,0 +1,13 @@
+<h3>Recent Orders</h3>
+
+@if(orders.length === 0) {
+  <lib-empty-state message="No recent orders available."></lib-empty-state>
+} @else {
+  <ul>
+    @for(order of orders; track order.id) {
+      <li>
+        {{ order.customerName }} - {{ order.status }} - £{{ order.total }}
+      </li>
+    }
+  </ul>
+}

@@ -27,12 +27,14 @@ describe('PageHeaderComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Dashboard');
   });
 
-  it('renders title', () => {
+  it('renders subtitle', () => {
     component.title = 'Dashboard';
+    component.subtitle = 'Welcome to the dashboard';
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Welcome to the dashboard');
   });
+
   /*
     Edge cases
   */
@@ -43,5 +45,6 @@ describe('PageHeaderComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Dashboard');
+    //expect(fixture.nativeElement.textContent).toBe('');
   });
 });
