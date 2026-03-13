@@ -9,20 +9,20 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadChildren: () =>
+    loadComponent: () =>
       loadRemoteModule({
         type: 'module',
         remoteEntry: 'http://localhost:4201/remoteEntry.js',
         exposedModule: './Component',
-      }).then((m) => m.routes),
+      }).then((m) => m.AppComponent),
   },
   {
     path: 'orders',
-    loadChildren: () =>
+    loadComponent: () =>
       loadRemoteModule({
         type: 'module',
         remoteEntry: 'http://localhost:4202/remoteEntry.js',
         exposedModule: './Component',
-      }).then((m) => m.routes),
+      }).then((m) => m.AppComponent),
   },
 ];

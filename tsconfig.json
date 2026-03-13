@@ -15,10 +15,13 @@
     "moduleResolution": "node",
     "paths": {
       "shared-data": [
-        "./dist/shared-data"
+        "./projects/shared-data/src/public-api.ts"
+      ],
+      "shared-events": [
+        "./projects/shared-events/src/public-api.ts"
       ],
       "shared-ui": [
-        "./dist/shared-ui"
+        "./projects/shared-ui/src/public-api.ts"
       ]
     },
     "importHelpers": true,
