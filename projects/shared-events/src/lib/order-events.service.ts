@@ -1,72 +1,80 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-import { DashboardStats, Order } from "shared-data";
+import { Injectable } from '@angular/core';
+import { DashboardStats, Order } from 'shared-data';
+
+export interface OrdersState {
+  recentOrders: Order[];
+  stats: DashboardStats;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class OrderEventsService {
-  readonly instanceId = Math.random().toString(36).slice(2);
+  private readonly storageKey = 'workspace-portal-orders-state';
+  private readonly updateEventName = 'workspace-portal-orders-updated';
 
-  private readonly initialOrders: Order[] = [
-    {
-      id: 1,
-      customerName: 'Acme Ltd',
-      total: 120,
-      status: 'pending'
-    },
-    {
-      id: 2,
-      customerName: 'Globex Corp',
-      total: 320,
-      status: 'completed'
-    },
-    {
-      id: 3,
-      customerName: 'Soylent Ltd',
-      total: 210,
-      status: 'cancelled'
+  private readonly initialState: OrdersState = {
+    recentOrders: [
+      { id: 1, customerName: 'Acme Ltd', total: 120, status: 'pending' },
+      { id: 2, customerName: 'Globex Corp', total: 320, status: 'completed' },
+      { id: 3, customerName: 'Soylent Ltd', total: 210, status: 'cancelled' }
+    ],
+    stats: {
+      totalOrders: 24,
+      pendingOrders: 5,
+      completedOrders: 19
     }
-  ];
-
-  private readonly initialStats: DashboardStats = {
-    totalOrders: 24,
-    pendingOrders: 5,
-    completedOrders: 19
   };
 
-  private ordersSubject = new BehaviorSubject<Order[]>(this.initialOrders);
-  private statsSubject = new BehaviorSubject<DashboardStats>(this.initialStats);
+  getState(): OrdersState {
+    const raw = localStorage.getItem(this.storageKey);
 
-  orders$ = this.ordersSubject.asObservable();
-  stats$ = this.statsSubject.asObservable();
+    if (!raw) {
+      this.saveState(this.initialState, false);
+      return this.initialState;
+    }
+
+    return JSON.parse(raw) as OrdersState;
+  }
 
   createOrder(order: Order): void {
-    const currentOrders = this.ordersSubject.getValue();
-    const currentStats = this.statsSubject.getValue();
+    const current = this.getState();
 
-    console.log('[OrderEventsService:createOrder] instance', this.instanceId, order);
+    const nextState: OrdersState = {
+      /*
+      Add the order retrieved from the local state to the recent orders array and it includes
+      only the first 5 orders the slice determines this.
+      */
+      recentOrders: [order, ...current.recentOrders].slice(0, 5),
+      stats: {
+        /* Update the stats with the updated orders and either increment by 1 or not
+        then change the status to pending and completed.
+        */
+        ...current.stats,
+        totalOrders: current.stats.totalOrders + 1,
+        pendingOrders:
+          order.status === 'pending'
+            ? current.stats.pendingOrders + 1
+            : current.stats.pendingOrders,
+        completedOrders:
+          order.status === 'completed'
+            ? current.stats.completedOrders + 1
+            : current.stats.completedOrders
+      }
+    };
 
-    /*
-    order, ...currentOrders creates a new array and adds the new order at the top, the
-    slice limits the sum of the orders to 5 in total.
-    The new list is pushed in to the BehaviorSubject and emitted to the subscribers.
-    */
-    this.ordersSubject.next([order, ...currentOrders].slice(0, 5));
+    this.saveState(nextState, true);
+  }
 
-    // In the section below ? is ternary and is used as or in this case
-    this.statsSubject.next({
-      ...currentStats,
-      totalOrders: currentStats.totalOrders + 1,
-      pendingOrders:
-        order.status === 'pending'
-        ? currentStats.pendingOrders + 1
-        : currentStats.pendingOrders,
-      completedOrders:
-        order.status === 'completed'
-        ? currentStats.completedOrders + 1
-        : currentStats.completedOrders
-    });
+  get eventName(): string {
+    return this.updateEventName;
+  }
+
+  private saveState(state: OrdersState, emitEvent: boolean): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(state));
+
+    if (emitEvent) {
+      window.dispatchEvent(new CustomEvent(this.updateEventName, { detail: state }));
+    }
   }
 }

@@ -5,6 +5,7 @@ import { DashboardStatsComponent } from "./dashboard-stats/dashboard-stats.compo
 import { RecentOrdersComponent } from './recent-orders/recent-orders.component';
 import { OrderEventsService } from 'shared-events';
 import { takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +14,7 @@ import { takeUntilDestroyed} from '@angular/core/rxjs-interop';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnDestroy {
-    /*
+export class AppComponent  {
   private orderEvents = inject(OrderEventsService);
   private destroyRef = inject(DestroyRef);
 
@@ -26,54 +26,18 @@ export class AppComponent implements OnDestroy {
 
   recentOrders: Order[] = [];
 
- constructor() {
-    console.log('[Dashboard] OrderEventService instance', this.orderEvents.instanceId);
+  constructor() {
+     this.syncFromStore();
 
+     fromEvent(window, this.orderEvents.eventName)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => this.syncFromStore());
+  }
 
-    this.orderEvents.stats$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((stats) => {
-        console.log('[Dashboard] stats update', this.orderEvents.instanceId, stats);
-        this.stats = stats;
-      });
+  private syncFromStore(): void {
+    const state = this.orderEvents.getState();
+    this.stats = state.stats;
+    this.recentOrders = state.recentOrders;
+  }
 
-    this.orderEvents.orders$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((orders) => {
-        console.log('[Dashboard] orders update', this.orderEvents.instanceId, orders);
-        this.recentOrders = orders;
-      });
-  } */
-
-      private orderEvents = inject(OrderEventsService);
-      private destroyRef = inject(DestroyRef);
-
-      stats: DashboardStats = {
-        totalOrders: 24,
-        pendingOrders: 5,
-        completedOrders: 19
-      };
-      recentOrders: Order[] = [];
-
-      constructor() {
-          console.log('[Dashboard] subscribed with instance', this.orderEvents.instanceId);
-
-          this.orderEvents.stats$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((stats) => {
-              console.log('[Dashboard] stats update', this.orderEvents.instanceId, stats);
-              this.stats = stats;
-            });
-
-          this.orderEvents.orders$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((orders) => {
-              console.log('[Dashboard] orders update', this.orderEvents.instanceId, orders);
-              this.recentOrders = orders;
-            });
-      }
-
-      ngOnDestroy(): void {
-        console.log('[Dashboard] destroyed', this.orderEvents.instanceId);
-      }
 }
