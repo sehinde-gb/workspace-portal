@@ -1,32 +1,21 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PageHeaderComponent } from 'shared-ui';
 import { Order } from 'shared-data';
 import { OrdersListComponent } from "./orders-list/orders-list.component";
-import { OrderEventsService } from 'shared-events';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { fromEvent } from 'rxjs';
+import { OrdersFacade } from './orders.facade';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PageHeaderComponent, OrdersListComponent],
+  imports: [PageHeaderComponent, OrdersListComponent, AsyncPipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  private orderEvents = inject(OrderEventsService);
-  private destroyRef = inject(DestroyRef);
+  private facade = inject(OrdersFacade);
 
-  orders: Order[] = [];
-
-  constructor() {
-     this.syncFromStore();
-
-     fromEvent(window, this.orderEvents.eventName)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.syncFromStore());
-    }
-
+  orders$ = this.facade.orders$;
 
   createMockOrder(): void {
     const newOrder: Order = {
@@ -36,10 +25,6 @@ export class AppComponent {
       status: 'pending'
     };
 
-    this.orderEvents.createOrder(newOrder);
-  }
-
-  private syncFromStore(): void {
-    this.orders = this.orderEvents.getState().recentOrders;
+    this.facade.createOrder(newOrder);
   }
 }

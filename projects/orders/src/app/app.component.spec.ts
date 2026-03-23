@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { OrderEventsService } from 'shared-events';
+import { OrdersFacade } from './orders.facade';
 import { provideRouter } from '@angular/router';
 import { Routes } from '@angular/router';
+import { of } from 'rxjs';
+
 
 
 const mockRoutes: Routes = [];
@@ -10,29 +12,27 @@ const mockRoutes: Routes = [];
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let component: AppComponent;
-  let orderEvents: OrderEventsService;
-
-  const mockOrderEventsService = {
-    getState: jasmine.createSpy().and.returnValue({
-      recentOrders: [{ customerName: 'New Customer'}],
-      stats: {totalOrders: 25 }
-    })
-  };
+  let facade: jasmine.SpyObj<OrdersFacade>;
 
 
   beforeEach(async () => {
-    localStorage.clear();
+    facade = jasmine.createSpyObj('OrdersFacade', ['createOrder'], {
+      orders$: of([
+        { id: 1, customerName: 'Test User', total: 100, status: 'pending'}
+      ])
+    })
 
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        provideRouter(mockRoutes)
+        provideRouter(mockRoutes),
+        { provide: OrdersFacade, useValue: facade }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    orderEvents = TestBed.inject(OrderEventsService);
+
   });
 
 
@@ -41,28 +41,32 @@ describe('AppComponent', () => {
     Render / UI State
   */
   it('renders orders title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Orders Remote');
   });
 
-  /*
-    Success paths
+ it('renders orders from facade', () => {
+
+  fixture.detectChanges();
+
+  expect(fixture.nativeElement.textContent).toContain('Test User');
+
+
+ });
+
+ /*
+ Success
   */
+ it('calls facade when button is clicked', () => {
 
-  it('creates a mock order when button is clicked', () => {
-    fixture.detectChanges();
+  fixture.detectChanges();
 
-    const btn: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-    btn.click();
+  const btn: HTMLButtonElement = fixture.nativeElement.querySelector('button');
 
-    fixture.detectChanges();
+  btn.click();
 
-    const state = orderEvents.getState();
-
-    expect(state.recentOrders[0].customerName).toBe('New Customer');
-    expect(state.stats.totalOrders).toBe(25);
-
-  });
+  expect(facade.createOrder).toHaveBeenCalled();
+ });
 });

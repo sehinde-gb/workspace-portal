@@ -4,4 +4,4 @@
 </lib-page-header>
 
 <button type="button" (click)="createMockOrder()">Create Mock Order</button>
-<app-orders-list [orders]="orders"></app-orders-list>
+<app-orders-list [orders]="(orders$ | async) ?? []"></app-orders-list>
