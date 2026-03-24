@@ -3,19 +3,22 @@ import { PageHeaderComponent } from 'shared-ui';
 import { Order } from 'shared-data';
 import { OrdersListComponent } from "./orders-list/orders-list.component";
 import { OrdersFacade } from './orders.facade';
-import { AsyncPipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PageHeaderComponent, OrdersListComponent, AsyncPipe],
+  imports: [PageHeaderComponent, OrdersListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
   private facade = inject(OrdersFacade);
 
-  orders$ = this.facade.orders$;
+  orders = this.facade.orders;
+  totalOrders = this.facade.totalOrders;
+  pendingOrders = this.facade.pendingOrders;
+  totalRevenue = this.facade.totalRevenue;
 
   createMockOrder(): void {
     const newOrder: Order = {

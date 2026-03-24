@@ -3,5 +3,9 @@
   subtitle="This content is coming from the orders micro-frontend">
 </lib-page-header>
 
+<p>Total orders: {{ totalOrders() }}</p>
+<p>Pending orders: {{ pendingOrders() }}</p>
+<p>Total revenue: {{ totalRevenue() }} </p>
+
 <button type="button" (click)="createMockOrder()">Create Mock Order</button>
-<app-orders-list [orders]="(orders$ | async) ?? []"></app-orders-list>
+<app-orders-list [orders]="orders()"></app-orders-list>

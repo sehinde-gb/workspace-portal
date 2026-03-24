@@ -1,26 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Signal, signal } from '@angular/core';
 import { AppComponent } from './app.component';
 import { OrdersFacade } from './orders.facade';
-import { provideRouter } from '@angular/router';
-import { Routes } from '@angular/router';
-import { of } from 'rxjs';
-
-
+import { provideRouter, Routes } from '@angular/router';
+import { Order } from 'shared-data';
 
 const mockRoutes: Routes = [];
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
   let component: AppComponent;
-  let facade: jasmine.SpyObj<OrdersFacade>;
-
+  let facade: jasmine.SpyObj<OrdersFacade> & { orders: Signal<Order[]> };
 
   beforeEach(async () => {
-    facade = jasmine.createSpyObj('OrdersFacade', ['createOrder'], {
-      orders$: of([
-        { id: 1, customerName: 'Test User', total: 100, status: 'pending'}
-      ])
-    })
+    const facadeSpy = jasmine.createSpyObj('OrdersFacade', ['createOrder']);
+    facade = Object.assign(facadeSpy, {
+      orders: signal([
+        { id: 1, customerName: 'Test User', total: 100, status: 'pending' }
+      ] as Order[])
+    });
 
     await TestBed.configureTestingModule({
       imports: [AppComponent],
@@ -32,41 +30,33 @@ describe('AppComponent', () => {
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-
   });
 
-
-
-  /*
-    Render / UI State
-  */
   it('renders orders title', () => {
-
     fixture.detectChanges();
-
     expect(fixture.nativeElement.textContent).toContain('Orders Remote');
   });
 
- it('renders orders from facade', () => {
+  it('renders orders from facade', () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Test User');
+  });
 
-  fixture.detectChanges();
+  it('calls facade when button is clicked', () => {
+    fixture.detectChanges();
 
-  expect(fixture.nativeElement.textContent).toContain('Test User');
+    const btn: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    btn.click();
 
+    expect(facade.createOrder).toHaveBeenCalled();
+  });
 
- });
+  it('renders computed order stats', () => {
+    fixture.detectChanges();
 
- /*
- Success
-  */
- it('calls facade when button is clicked', () => {
+    const text = fixture.nativeElement.textContent;
 
-  fixture.detectChanges();
-
-  const btn: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-
-  btn.click();
-
-  expect(facade.createOrder).toHaveBeenCalled();
- });
+    expect(text).toContain('Total Orders: 1');
+    expect(text).toContain('Pending Orders: 1');
+  });
 });

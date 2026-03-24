@@ -1,4 +1,4 @@
-import { Injectable, inject, DestroyRef } from "@angular/core";
+import { Injectable, inject, DestroyRef, signal, computed } from "@angular/core";
 import { BehaviorSubject, fromEvent } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { OrderEventsService } from "shared-events";
@@ -10,8 +10,20 @@ export class OrdersFacade {
   private orderEvents = inject(OrderEventsService);
   private destroyRef = inject(DestroyRef);
 
-  private ordersSubject = new BehaviorSubject<Order[]>([]);
-  orders$ = this.ordersSubject.asObservable();
+
+  orders = signal<Order[]>([]);
+
+  /* find the length of the orders */
+  totalOrders = computed(() => this.orders().length);
+
+  /* Filter all order.status with pending and find out how many there are */
+  pendingOrders = computed(() =>
+    this.orders().filter(order => order.status === 'pending').length
+  );
+
+  /* Find the sum of all order totals */
+  totalRevenue = computed(() => this.orders().reduce((sum, order) => sum + order.total, 0));
+
 
   constructor() {
     this.syncFromStore();
@@ -28,7 +40,7 @@ export class OrdersFacade {
 
   private syncFromStore(): void {
     const state = this.orderEvents.getState();
-    this.ordersSubject.next(state.recentOrders);
+    this.orders.set(state.recentOrders);
   }
 
 }
