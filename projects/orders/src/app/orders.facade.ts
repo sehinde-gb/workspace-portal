@@ -1,5 +1,5 @@
 import { Injectable, inject, DestroyRef, signal, computed } from "@angular/core";
-import { BehaviorSubject, fromEvent } from "rxjs";
+import { fromEvent } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { OrderEventsService } from "shared-events";
 import { Order } from "shared-data";
@@ -37,7 +37,17 @@ export class OrdersFacade {
   }
 
   createOrder(order: Order): void {
-    this.orderEvents.createOrder(order);
+    const previousOrders = [...this.orders()]
+    this.orders.set([order, ...previousOrders]);
+    this.error.set(null);
+
+    try {
+      this.orderEvents.createOrder(order);
+    } catch {
+      this.orders.set(previousOrders);
+      this.error.set('Failed to create order');
+    }
+
   }
 
   private syncFromStore(): void {

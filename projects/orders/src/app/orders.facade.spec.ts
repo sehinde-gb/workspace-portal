@@ -129,4 +129,62 @@ describe('OrdersFacade', () => {
     expect(facade.error()).toBe('Failed to load orders');
     expect(facade.loading()).toBe(false);
   });
+
+  /* Success */
+  it('optimistically adds order before calling service', () => {
+    orderEvents.getState.and.returnValue({
+      recentOrders: [],
+      stats: { totalOrders: 0, pendingOrders: 0, completedOrders: 0 }
+    });
+
+    facade = TestBed.inject(OrdersFacade);
+
+    const newOrder: Order = {
+      id: 99,
+      customerName: 'Optimistic Customer',
+      total: 250,
+      status: 'pending'
+    };
+
+    facade.createOrder(newOrder);
+
+    expect(facade.orders().length).toBe(1);
+    expect(facade.orders()[0].customerName).toBe('Optimistic Customer');
+    expect(orderEvents.createOrder).toHaveBeenCalledWith(newOrder);
+    expect(facade.error()).toBeNull();
+
+  });
+
+  /* Failure */
+  it('rolls back optimistic update when createOrder fails', () => {
+    const existingOrder: Order = {
+      id: 1,
+      customerName: 'Existing Customer',
+      total: 100,
+      status: 'pending'
+    };
+
+    orderEvents.getState.and.returnValue({
+      recentOrders: [existingOrder],
+      stats: {totalOrders: 1, pendingOrders: 1, completedOrders: 0 }
+    });
+
+    facade = TestBed.inject(OrdersFacade);
+
+    const newOrder: Order = {
+      id: 99,
+      customerName: 'Optimistic Customer',
+      total: 250,
+      status: 'pending'
+    };
+
+    orderEvents.createOrder.and.throwError('create failed');
+
+    facade.createOrder(newOrder);
+
+    expect(facade.orders().length).toBe(1);
+    expect(facade.orders()[0].customerName).toBe('Existing Customer');
+    expect(facade.error()).toBe('Failed to create order');
+  });
+
 });
