@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Order } from 'shared-data';
 import { InfoCardComponent } from 'shared-ui';
 
@@ -11,4 +11,9 @@ import { InfoCardComponent } from 'shared-ui';
 })
 export class OrderCardComponent {
   @Input({ required: true}) order!: Order;
+  @Output() selected = new EventEmitter<Order>();
+
+  onSelect(): void {
+    this.selected.emit(this.order);
+  }
 }

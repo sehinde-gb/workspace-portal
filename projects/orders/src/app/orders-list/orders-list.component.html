@@ -1,7 +1,10 @@
 @if(orders.length === 0) {
   <lib-empty-state message="No orders available yet."></lib-empty-state>
 } @else {
+
   @for (order of orders; track order.id){
-    <app-order-card [order]="order"></app-order-card>
+    <app-order-card [order]="order"
+                    (selected)="selectOrder(order)"
+    ></app-order-card>
   }
 }

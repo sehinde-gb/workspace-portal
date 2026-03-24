@@ -49,6 +49,7 @@ describe('OrdersFacade', () => {
     expect(facade.orders()[0].customerName).toBe('Test Customer');
   });
 
+  /* Edge Case */
   it('updates orders when event is fired', () => {
     orderEvents.getState.and.returnValues(
       {
@@ -84,6 +85,42 @@ describe('OrdersFacade', () => {
     expect(orderEvents.createOrder).toHaveBeenCalledWith(mockOrder);
   });
 
+
+  it('sets error when getState throws', () => {
+    orderEvents.getState.and.throwError('failure');
+
+    facade = TestBed.inject(OrdersFacade);
+
+    expect(facade.error()).toBe('Failed to load orders');
+    expect(facade.loading()).toBe(false);
+  });
+
+  /* Success */
+  it('optimistically adds order before calling service', () => {
+    orderEvents.getState.and.returnValue({
+      recentOrders: [],
+      stats: { totalOrders: 0, pendingOrders: 0, completedOrders: 0 }
+    });
+
+    facade = TestBed.inject(OrdersFacade);
+
+    const newOrder: Order = {
+      id: 99,
+      customerName: 'Optimistic Customer',
+      total: 250,
+      status: 'pending'
+    };
+
+    facade.createOrder(newOrder);
+
+    expect(facade.orders().length).toBe(1);
+    expect(facade.orders()[0].customerName).toBe('Optimistic Customer');
+    expect(orderEvents.createOrder).toHaveBeenCalledWith(newOrder);
+    expect(facade.error()).toBeNull();
+
+  });
+
+  /* Failure */
   it('computes total orders and pending orders from orders state', () => {
     orderEvents.getState.and.returnValue({
       recentOrders: [
@@ -121,41 +158,6 @@ describe('OrdersFacade', () => {
     expect(facade.error()).toBeNull();
   });
 
-  it('sets error when getState throws', () => {
-    orderEvents.getState.and.throwError('failure');
-
-    facade = TestBed.inject(OrdersFacade);
-
-    expect(facade.error()).toBe('Failed to load orders');
-    expect(facade.loading()).toBe(false);
-  });
-
-  /* Success */
-  it('optimistically adds order before calling service', () => {
-    orderEvents.getState.and.returnValue({
-      recentOrders: [],
-      stats: { totalOrders: 0, pendingOrders: 0, completedOrders: 0 }
-    });
-
-    facade = TestBed.inject(OrdersFacade);
-
-    const newOrder: Order = {
-      id: 99,
-      customerName: 'Optimistic Customer',
-      total: 250,
-      status: 'pending'
-    };
-
-    facade.createOrder(newOrder);
-
-    expect(facade.orders().length).toBe(1);
-    expect(facade.orders()[0].customerName).toBe('Optimistic Customer');
-    expect(orderEvents.createOrder).toHaveBeenCalledWith(newOrder);
-    expect(facade.error()).toBeNull();
-
-  });
-
-  /* Failure */
   it('rolls back optimistic update when createOrder fails', () => {
     const existingOrder: Order = {
       id: 1,
