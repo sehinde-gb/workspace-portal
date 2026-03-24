@@ -3,9 +3,16 @@
   subtitle="This content is coming from the orders micro-frontend">
 </lib-page-header>
 
-<p>Total orders: {{ totalOrders() }}</p>
-<p>Pending orders: {{ pendingOrders() }}</p>
-<p>Total revenue: {{ totalRevenue() }} </p>
+<p *ngIf="loading()">Loading orders....</p>
+<p *ngIf="error()">{{ error() }}</p>
 
-<button type="button" (click)="createMockOrder()">Create Mock Order</button>
+<div *ngIf="!loading() && !error()">
+  <p>Total orders: {{ totalOrders() }}</p>
+  <p>Pending orders: {{ pendingOrders() }}</p>
+  <p>Total revenue: {{ totalRevenue() }} </p>
+  <button type="button" (click)="createMockOrder()">Create Mock Order</button>
+</div>
+
+
+
 <app-orders-list [orders]="orders()"></app-orders-list>

@@ -99,4 +99,34 @@ describe('OrdersFacade', () => {
     expect(facade.pendingOrders()).toBe(2);
     expect(facade.totalRevenue()).toBe(600);
   });
+
+  it('sets error when getState throws', () => {
+    orderEvents.getState.and.throwError('failure');
+
+    facade = TestBed.inject(OrdersFacade);
+
+    expect(facade.error()).toBe('Failed to load orders');
+    expect(facade.loading()).toBe(false);
+  });
+
+  it('sets loading to false after successful sync', () => {
+    orderEvents.getState.and.returnValue({
+      recentOrders: [],
+      stats: { totalOrders: 0, pendingOrders: 0, completedOrders: 0 }
+    });
+
+    facade = TestBed.inject(OrdersFacade);
+
+    expect(facade.loading()).toBe(false);
+    expect(facade.error()).toBeNull();
+  });
+
+  it('sets error when getState throws', () => {
+    orderEvents.getState.and.throwError('failure');
+
+    facade = TestBed.inject(OrdersFacade);
+
+    expect(facade.error()).toBe('Failed to load orders');
+    expect(facade.loading()).toBe(false);
+  });
 });

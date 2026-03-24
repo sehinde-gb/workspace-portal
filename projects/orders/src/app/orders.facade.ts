@@ -12,6 +12,8 @@ export class OrdersFacade {
 
 
   orders = signal<Order[]>([]);
+  loading = signal(false);
+  error = signal<string | null>(null);
 
   /* find the length of the orders */
   totalOrders = computed(() => this.orders().length);
@@ -39,8 +41,23 @@ export class OrdersFacade {
   }
 
   private syncFromStore(): void {
-    const state = this.orderEvents.getState();
-    this.orders.set(state.recentOrders);
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+     const state = this.orderEvents.getState();
+     this.orders.set(state.recentOrders);
+    } catch (err) {
+
+      this.error.set('Failed to load orders');
+
+    } finally {
+      this.loading.set(false);
+    }
+
+
+
+
   }
 
 }
