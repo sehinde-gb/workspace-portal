@@ -17,7 +17,7 @@ describe('OrdersFacade', () => {
   beforeEach(() => {
     const spy = jasmine.createSpyObj(
       'OrderEventsService',
-      ['getState', 'createOrder'],
+      ['getState', 'createOrder', 'deleteOrder'],
       { eventName: 'ordersUpdated' }
     );
 
@@ -94,6 +94,8 @@ describe('OrdersFacade', () => {
     expect(facade.error()).toBe('Failed to load orders');
     expect(facade.loading()).toBe(false);
   });
+
+
 
   /* Success */
   it('optimistically adds order before calling service', () => {
@@ -187,6 +189,50 @@ describe('OrdersFacade', () => {
     expect(facade.orders().length).toBe(1);
     expect(facade.orders()[0].customerName).toBe('Existing Customer');
     expect(facade.error()).toBe('Failed to create order');
+  });
+
+  it('optimistically remove order before calling delete service', () => {
+    const existingOrders: Order[] = [
+      { id: 1, customerName: 'A', total: 100, status: 'pending'},
+      { id: 2, customerName: 'B', total: 200, status: 'completed'},
+    ];
+
+    orderEvents.getState.and.returnValue({
+      recentOrders: existingOrders,
+      stats: { totalOrders: 2, pendingOrders: 1, completedOrders: 1 }
+
+    });
+
+    facade = TestBed.inject(OrdersFacade);
+
+    facade.deleteOrder(existingOrders[0]);
+
+    expect(facade.orders().length).toBe(1);
+    expect(facade.orders()[0].customerName).toBe('B');
+    expect(orderEvents.deleteOrder).toHaveBeenCalledWith(1);
+    expect(facade.error()).toBeNull();
+  });
+
+  it('rollsback optimistic delete when service fails', () => {
+    const existingOrders: Order[] = [
+      { id: 1, customerName: 'A', total: 100, status: 'pending' },
+      { id: 2, customerName: 'B', total: 200, status: 'completed'}
+    ];
+
+    orderEvents.getState.and.returnValue({
+      recentOrders: existingOrders,
+      stats: { totalOrders: 2, pendingOrders: 1, completedOrders: 1 }
+    });
+
+    orderEvents.deleteOrder.and.throwError('delete failed');
+
+    facade = TestBed.inject(OrdersFacade);
+
+    facade.deleteOrder(existingOrders[0]);
+
+    expect(facade.orders().length).toBe(2);
+    expect(facade.orders()[0].customerName).toBe('A');
+    expect(facade.error()).toBe('Failed to delete order')
   });
 
 });

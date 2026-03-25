@@ -79,8 +79,7 @@ describe('AppComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Loading orders....');
   });
-
-  it('shows error message when error exists', () => {
+   it('shows error message when error exists', () => {
     facade.error.set('Failed to load orders');
     fixture.detectChanges();
 

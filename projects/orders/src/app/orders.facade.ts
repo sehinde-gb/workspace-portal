@@ -50,6 +50,20 @@ export class OrdersFacade {
 
   }
 
+  deleteOrder(order: Order): void {
+    const previousOrders = [...this.orders()];
+    this.orders.set(previousOrders.filter(o => o.id !== order.id));
+    this.error.set(null);
+
+    try {
+      this.orderEvents.deleteOrder(order.id);
+
+    } catch {
+      this.orders.set(previousOrders);
+      this.error.set('Failed to delete order');
+    }
+  }
+
   private syncFromStore(): void {
     this.loading.set(true);
     this.error.set(null);

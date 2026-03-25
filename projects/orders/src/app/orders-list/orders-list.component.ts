@@ -14,8 +14,13 @@ import { OrderCardComponent } from '../order-card/order-card.component';
 export class OrdersListComponent {
   @Input() orders: Order[] = [];
   @Output() orderSelected = new EventEmitter<Order>();
+  @Output() orderDeleted = new EventEmitter<Order>();
 
   selectOrder(order: Order): void {
     this.orderSelected.emit(order);
+  }
+
+  deleteOrder(order: Order): void {
+    this.orderDeleted.emit(order);
   }
 }

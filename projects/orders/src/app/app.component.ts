@@ -23,9 +23,6 @@ export class AppComponent {
   pendingOrders = this.facade.pendingOrders;
   totalRevenue = this.facade.totalRevenue;
 
-  onOrderSelected(order: Order): void {
-    console.log('Selected order:', order);
-  }
 
   createMockOrder(): void {
     const newOrder: Order = {
@@ -37,4 +34,14 @@ export class AppComponent {
 
     this.facade.createOrder(newOrder);
   }
+
+  onOrderSelected(order: Order): void {
+    console.log('Selected order:', order)
+  }
+  
+  deleteOrder(order: Order): void {
+    this.facade.deleteOrder(order);
+  }
+
+
 }

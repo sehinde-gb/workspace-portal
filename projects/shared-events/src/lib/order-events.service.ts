@@ -66,6 +66,41 @@ export class OrderEventsService {
     this.saveState(nextState, true);
   }
 
+  deleteOrder(orderId: number): void {
+     // get current state
+     const current = this.getState();
+     // Find the orderId of the order that is destined for deletion
+     const orderToDelete = current.recentOrders.find(order => order.id === orderId);
+
+     // If doesnt exist return
+     if (!orderToDelete) {
+        return;
+     }
+
+
+    const nextState: OrdersState = {
+      // using the ordeId filter through and remove the above ID from the orders collection.
+      recentOrders: current.recentOrders.filter(order => orderId !== order.id),
+      stats: {
+        ...current.stats,
+        // update stats by subtracting 1 from each signal
+        totalOrders: Math.max(0, current.stats.totalOrders -1 ),
+        pendingOrders:
+          orderToDelete.status === 'pending'
+            ? Math.max(0, current.stats.pendingOrders -1)
+            : current.stats.pendingOrders,
+        completedOrders:
+          orderToDelete.status === 'completed'
+            ? Math.max(0, current.stats.completedOrders -1 )
+            : current.stats.completedOrders
+      }
+    };
+    // save state
+    this.saveState(nextState, true);
+
+
+  }
+
   get eventName(): string {
     return this.updateEventName;
   }

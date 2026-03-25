@@ -12,8 +12,15 @@ import { InfoCardComponent } from 'shared-ui';
 export class OrderCardComponent {
   @Input({ required: true}) order!: Order;
   @Output() selected = new EventEmitter<Order>();
+  @Output() deleted = new EventEmitter<Order>();
+
 
   onSelect(): void {
     this.selected.emit(this.order);
+  }
+
+  onDelete(event: Event): void {
+    event.stopPropagation();
+    this.deleted.emit(this.order);
   }
 }
