@@ -1,4 +1,4 @@
-import { Injectable, inject, DestroyRef, signal, computed } from "@angular/core";
+import { Injectable, inject, DestroyRef, signal, computed, effect } from "@angular/core";
 import { fromEvent } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { OrderEventsService } from "shared-events";
@@ -28,6 +28,11 @@ export class OrdersFacade {
 
 
   constructor() {
+    effect(() => {
+      console.log('Orders changed:', this.orders());
+      console.log('Total orders now:', this.totalOrders());
+    });
+
     this.syncFromStore();
 
     fromEvent(window, this.orderEvents.eventName)
