@@ -1,5 +1,5 @@
 import { TestBed } from "@angular/core/testing";
-import { OrderEventsService } from './order-events.service';
+import { OrderEventsService, OrdersState } from './order-events.service';
 import { Order } from "shared-data";
 
 describe('OrderEventsService', () => {
@@ -44,6 +44,80 @@ describe('OrderEventsService', () => {
 
     expect(state.recentOrders[0].customerName).toBe('New Customer');
     expect(state.recentOrders.length).toBeLessThanOrEqual(5);
+  });
+
+  it('it should replace an existing order with updated details', () => {
+    // ARRANGE
+    const updatedOrder: Order = {
+      id: 99,
+      customerName: 'Old Customer',
+      total: 250,
+      status: 'pending'
+    };
+
+    const existingOrder: Order = {
+      id: 99,
+      customerName: 'New Customer Ltd',
+      total: 300,
+      status: 'completed'
+    };
+
+    // Manually set up the initial state
+    const initialState: OrdersState = {
+      recentOrders: [existingOrder],
+      stats: { totalOrders: 1, pendingOrders: 1, completedOrders: 0 }
+    };
+
+    service.editOrder(updatedOrder);
+
+    const finalState = service.getState();
+
+    expect(finalState.recentOrders[0].customerName).toBe('New Customer Ltd');
+
+    expect(finalState.stats.pendingOrders).toBe(0);
+
+    expect(finalState.stats.completedOrders).toBe(1);
+
+  });
+
+  /* Edge Case */
+  it('given an empty updated order it should not replace an existing order', () => {
+
+    // ARRANGE
+    const updatedOrder: Order = {
+      id: 0,
+      customerName: '',
+      total: 0,
+      status: 'pending'
+    };
+
+    const existingOrder: Order = {
+      id: 99,
+      customerName: 'New Customer Ltd',
+      total: 300,
+      status: 'completed'
+    };
+
+
+    // Manually set up the initial state
+    const initialState: OrdersState = {
+      recentOrders: [existingOrder],
+      stats: { totalOrders: 0, pendingOrders: 0, completedOrders: 0 }
+    };
+
+    // ACT
+    service.editOrder(updatedOrder);
+
+    const finalState = service.getState();
+
+    expect(finalState.recentOrders[0].customerName).toBeFalsy();
+
+    expect(finalState.stats.pendingOrders).toBe(0);
+
+    expect(finalState.stats.completedOrders).toBe(0);
+
+
+
   });
 
   it('increments pendingOrders when a pending order is created', () => {

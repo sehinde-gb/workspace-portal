@@ -1,0 +1,35 @@
+<div class="container">
+  <h1 class="text-center">Update Order</h1>
+
+  <button type="button" class="btn btn-warning" (click)="goBack()">Back</button>
+
+
+  @if(hasError()) {
+    <div class="alert alert-danger">
+      <p>We couldn't load this post</p>
+      <button class="btn btn-outline-danger" type="button" (click)="retry()">Retry</button>
+    </div>
+  } @else {
+    <div>
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+        <label for="customerName">Customer Name</label>
+        <input id="customerName" type="text" formControlName="customerName" />
+        @if(orderForm.get('customerName')?.invalid && orderForm.get('customerName')?.touched) {
+          <div class="text-danger">Customer Name is required</div>
+        }
+        <label for="total">Total</label>
+        <input id="total" type="number" formControlName="total" />
+        @if(orderForm.get('total')?.invalid && orderForm.get('total')?.touched) {
+          <div class="text-danger">Total is required</div>
+        }
+        <label for="status">Status</label>
+        <input id="status" type="text" formControlName="status" />
+        <button type="submit">Update Order</button>
+      </form>
+  </div>
+
+  }
+
+
+
+

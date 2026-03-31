@@ -4,12 +4,13 @@ import { Order } from 'shared-data';
 import { OrdersListComponent } from "./orders-list/orders-list.component";
 import { OrdersFacade } from './orders.facade';
 import { NgIf } from "@angular/common";
+import { CreateOrderComponent } from "../features/orders/components/create-order.component";
 
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [PageHeaderComponent, OrdersListComponent, NgIf],
+  imports: [PageHeaderComponent, OrdersListComponent, NgIf, CreateOrderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -38,7 +39,7 @@ export class AppComponent {
   onOrderSelected(order: Order): void {
     console.log('Selected order:', order)
   }
-  
+
   deleteOrder(order: Order): void {
     this.facade.deleteOrder(order);
   }

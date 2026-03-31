@@ -32,7 +32,9 @@ describe('authGuard', () => {
     spyOn(localStorage, 'getItem').and.returnValue('token');
 
     // Auth guard expects two arguments (route and state) and I have typed them as any and used the empty object sign
-    const result = authGuard({} as any, {} as any);
+    const result = TestBed.runInInjectionContext(() =>
+      authGuard({} as any, {} as any)
+    );
 
     expect(result).toBeTrue();
   });
@@ -48,7 +50,9 @@ describe('authGuard', () => {
     router.createUrlTree.and.returnValue(mockTree);
 
     // Set up the authGuard
-    const result = authGuard({} as any, {} as any);
+    const result = TestBed.runInInjectionContext(() =>
+      authGuard({} as any, {} as any)
+    );
 
     // expect the redirect to have been called with login page this executes the guard
     expect(router.createUrlTree).toHaveBeenCalledWith(['/login']);

@@ -20,7 +20,7 @@ describe('AppComponent', () => {
   };
 
   beforeEach(async () => {
-    const facadeSpy = jasmine.createSpyObj('OrdersFacade', ['createOrder']);
+    const facadeSpy = jasmine.createSpyObj('OrdersFacade', ['createOrder', 'deleteOrder']);
     facade = Object.assign(facadeSpy, {
       orders: signal([
         { id: 1, customerName: 'Test User', total: 100, status: 'pending' }
@@ -64,7 +64,7 @@ describe('AppComponent', () => {
     expect(text).toContain('Total revenue: 100');
   });
 
-  it('calls facade when button is clicked', () => {
+  /* it('calls facade when button is clicked', () => {
     fixture.detectChanges();
 
     const btn: HTMLButtonElement = fixture.nativeElement.querySelector('button');
@@ -72,6 +72,25 @@ describe('AppComponent', () => {
 
     expect(facade.createOrder).toHaveBeenCalled();
   });
+ */
+
+   it('calls facade.createOrder when Create Mock Order button is clicked', () => {
+    fixture.detectChanges();
+
+    const buttons: NodeListOf<HTMLButtonElement> =
+      fixture.nativeElement.querySelectorAll('button');
+
+    const mockOrderButton = Array.from(buttons).find(
+      button => button.textContent?.trim() === 'Create Mock Order'
+    );
+
+    expect(mockOrderButton).toBeTruthy();
+
+    mockOrderButton!.click();
+
+    expect(facade.createOrder).toHaveBeenCalled();
+  });
+
 
   it('shows loading message when loading is true', () => {
     facade.loading.set(true);

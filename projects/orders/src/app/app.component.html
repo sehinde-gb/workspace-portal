@@ -10,13 +10,17 @@
   <p>Total orders: {{ totalOrders() }}</p>
   <p>Pending orders: {{ pendingOrders() }}</p>
   <p>Total revenue: {{ totalRevenue() }} </p>
+
+  <app-create-order></app-create-order>
+
   <button type="button" (click)="createMockOrder()">Create Mock Order</button>
+
+  <app-orders-list [orders]="orders()"
+                 (orderSelected)="onOrderSelected($event)"
+                 (orderDeleted)="deleteOrder($event)">
+  </app-orders-list>
+
 </div>
 
 
 
-<app-orders-list [orders]="orders()"
-                 (orderSelected)="onOrderSelected($event)"
-                 (orderDeleted)="deleteOrder($event)"
-
-></app-orders-list>
