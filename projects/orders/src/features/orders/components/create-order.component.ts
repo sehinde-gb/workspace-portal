@@ -1,7 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { OrdersFacade } from '../../../app/orders.facade';
 import { Order } from 'shared-data';
+import { cancelledOrderTotalValidator } from '../../../app/core/validators/cancelled-order-total.validator';
+
+
 
 @Component({
   selector: 'app-create-order',
@@ -15,11 +18,24 @@ export class CreateOrderComponent {
   private fb = inject(FormBuilder);
   private facade = inject(OrdersFacade);
 
-  orderForm = this.fb.group({
-    customerName: ['', [Validators.required, Validators.minLength(2)]],
-    total: [0, [Validators.required, Validators.min(1)]],
-    status: ['pending', [Validators.required]]
-  });
+
+  orderForm = new FormGroup(
+  {
+    customerName: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(2), notBlankValidator()]
+    }),
+    total: new FormControl(0, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0)]
+    }),
+    status: new FormControl<Order['status']>('pending', {
+      nonNullable: true,
+      validators: [Validators.required]
+    })
+  },
+  { validators: [cancelledOrderTotalValidator()] }
+  );
 
   submit(): void {
     if(this.orderForm.invalid) {

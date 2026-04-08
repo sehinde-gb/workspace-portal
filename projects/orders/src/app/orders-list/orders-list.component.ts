@@ -9,7 +9,7 @@ import { OrderCardComponent } from '../order-card/order-card.component';
   standalone: true,
   imports: [ CommonModule, EmptyStateComponent, OrderCardComponent],
   templateUrl: './orders-list.component.html',
-  styleUrl: './orders-list.component.scss'
+  styleUrls: ['./orders-list.component.scss']
 })
 export class OrdersListComponent {
   @Input() orders: Order[] = [];

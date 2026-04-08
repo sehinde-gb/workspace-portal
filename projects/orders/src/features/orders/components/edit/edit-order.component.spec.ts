@@ -22,6 +22,13 @@ describe('EditOrderComponent (container)', () => {
     status: 'pending'
   };
 
+  const blankedOrder: Order = {
+    id: 1,
+    customerName: '   ',
+    total: 200,
+    status: 'completed'
+  }
+
 
   beforeEach(async () => {
     OrderEventsServiceSpy = jasmine.createSpyObj<OrderEventsService>('OrderEventsService', ['getState', 'editOrder']);
@@ -68,6 +75,34 @@ describe('EditOrderComponent (container)', () => {
     */
 
 
+
+  it('marks customerName invalid when loaded order contains only spaces', () => {
+    routeId = '1';
+
+    // Arrange
+    OrderEventsServiceSpy.getState.and.returnValue({
+      recentOrders: [blankedOrder],
+      stats: {
+        totalOrders: 1,
+        pendingOrders: 1,
+        completedOrders: 0
+      }});
+
+
+      // Act
+      fixture.detectChanges();
+
+      // Assert
+      // UI state hasError is used if the page crashed or missing data
+      expect(component.hasError()).toBeFalse();
+      // The code below shows invalid form data
+      expect(component.orderForm.get('customerName')?.hasError('blank')).toBeTrue();
+      expect(component.orderForm.invalid).toBeTrue();
+
+
+  });
+
+
   it('loads existing order values into the form', () => {
     routeId = '1';
 
@@ -93,6 +128,8 @@ describe('EditOrderComponent (container)', () => {
 
 
   });
+
+
 
   it('shows error when id is missing or invalid', () => {
 
@@ -180,7 +217,7 @@ describe('EditOrderComponent (container)', () => {
       status: 'completed'
     });
   });
-  
+
 
   it('does not call editOrder on invalid submit', () => {
     // Arrange

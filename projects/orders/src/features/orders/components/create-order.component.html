@@ -1,38 +1,42 @@
-<form [formGroup]="orderForm" (ngSubmit)="submit()">
-  <div>
-    <label for="customerName">Customer Name</label>
-    <input id="customerName" type="text" formControlName="customerName" />
+  @if (orderForm.hasError('cancelledOrderTotal') && orderForm.touched) {
+        <p>Cancelled orders must have a total of 0.</p>
+  }
 
-    @if (orderForm.get('customerName')?.touched && orderForm.get('customerName')?.hasError('required')) {
-      <p>Customer name is required.</p>
-    }
+  <form [formGroup]="orderForm" (ngSubmit)="submit()">
+    <div>
+      <label for="customerName">Customer Name</label>
+      <input id="customerName" type="text" formControlName="customerName" />
 
-    @if (orderForm.get('customerName')?.touched && orderForm.get('customerName')?.hasError('minlength')) {
-      <p>Customer name must be at least 2 characters.</p>
-    }
-  </div>
+      @if (orderForm.get('customerName')?.touched && orderForm.get('customerName')?.hasError('required')) {
+        <p>Customer name is required.</p>
+      }
 
-  <div>
-    <label for="total">Total</label>
-    <input id="total" type="number" formControlName="total" />
+      @if (orderForm.get('customerName')?.touched && orderForm.get('customerName')?.hasError('minlength')) {
+        <p>Customer name must be at least 2 characters.</p>
+      }
+    </div>
 
-    @if (orderForm.get('total')?.touched && orderForm.get('total')?.hasError('required')) {
-      <p>Total is required.</p>
-    }
+    <div>
+      <label for="total">Total</label>
+      <input id="total" type="number" formControlName="total" />
 
-    @if (orderForm.get('total')?.touched && orderForm.get('total')?.hasError('min')) {
-      <p>Total must be greater than 0.</p>
-    }
-  </div>
+      @if (orderForm.get('total')?.touched && orderForm.get('total')?.hasError('required')) {
+        <p>Total is required.</p>
+      }
 
-  <div>
-    <label for="status">Status</label>
-    <select id="status" formControlName="status">
-      <option value="pending">Pending</option>
-      <option value="completed">Completed</option>
-      <option value="cancelled">Cancelled</option>
-    </select>
-  </div>
+      @if (orderForm.get('total')?.touched && orderForm.get('total')?.hasError('min')) {
+        <p>Total must be greater than 0.</p>
+      }
+    </div>
 
-  <button type="submit">Create Order</button>
-</form>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" formControlName="status">
+        <option value="pending">Pending</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <button type="submit">Create Order</button>
+  </form>

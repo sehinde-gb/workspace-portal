@@ -73,9 +73,13 @@ describe('CreateOrderComponent', () => {
     •	Are fields reset?
     •	Are controls touched when invalid
 
-
   */
 
+
+
+  /*
+    Success paths
+  */
 
   it('creates the form with default values', () => {
     expect(component.orderForm).toBeTruthy();
@@ -83,19 +87,6 @@ describe('CreateOrderComponent', () => {
     expect(component.orderForm.get('total')?.value).toBe(0);
     expect(component.orderForm.get('status')?.value).toBe('pending');
 
-  });
-
-
-  it('is invalid when required fields are empty or invalid', () => {
-    component.orderForm.setValue({
-      customerName: '',
-      total: 0,
-      status: 'pending'
-    });
-
-    expect(component.orderForm.invalid).toBeTrue();
-    expect(component.orderForm.get('customerName')?.hasError('required')).toBeTrue();
-    expect(component.orderForm.get('total')?.hasError('min')).toBeTrue();
   });
 
   it('is valid with correct values', () => {
@@ -108,6 +99,38 @@ describe('CreateOrderComponent', () => {
     expect(component.orderForm.valid).toBeTrue();
   });
 
+
+  /*
+    Failure paths
+  */
+
+  it('is invalid when customerName is empty', () => {
+    component.orderForm.setValue({
+      customerName: '',
+      total: 0,
+      status: 'pending'
+    });
+
+    expect(component.orderForm.invalid).toBeTrue();
+    expect(component.orderForm.get('customerName')?.hasError('required')).toBeTrue();
+
+  });
+
+  it('marks total invalid when total is less than 0', () => {
+    component.orderForm.setValue({
+      customerName: 'Acme Ltd',
+      total: -1,
+      status: 'pending'
+    });
+
+    expect(component.orderForm.get('total')?.hasError('min')).toBeTrue();
+  });
+
+
+
+  /*
+    Edge cases
+  */
   it('calls facade.createOrder when form is submitted with valid data', () => {
     component.orderForm.setValue({
       customerName: 'Acme Ltd',
@@ -196,18 +219,67 @@ describe('CreateOrderComponent', () => {
   });
 
 
-  it('shows total validation message when total is 0 and control is touched', () => {
-  const totalInput: HTMLInputElement =
-    fixture.nativeElement.querySelector('#total');
+  it('marks form invalid when status is cancelled and total is greater than 0', () => {
+    component.orderForm.setValue({
+      customerName: 'Acme Ltd',
+      total: 5,
+      status: 'cancelled'
+    });
 
-  totalInput.value = '0';
-  totalInput.dispatchEvent(new Event('input'));
-  totalInput.dispatchEvent(new Event('blur'));
+    expect(component.orderForm.hasError('cancelledOrderTotal')).toBeTrue();
+    expect(component.orderForm.invalid).toBeTrue();
 
-  fixture.detectChanges();
+  });
 
-  expect(fixture.nativeElement.textContent).toContain('Total must be greater than 0.');
-});
+
+   it('does not add cancelledOrderTotal error when status is pending and total is 0', () => {
+    component.orderForm.setValue({
+      customerName: 'Acme Ltd',
+      total: 0,
+      status: 'pending'
+    });
+
+    expect(component.orderForm.hasError('cancelledOrderTotal')).toBeFalse();
+    expect(component.orderForm.get('total')?.hasError('min')).toBeFalse();
+
+
+  });
+
+   it('shows total validation message when total is 0 and control is touched', () => {
+    const totalInput: HTMLInputElement =
+      fixture.nativeElement.querySelector('#total');
+
+    totalInput.value = '-1';
+    totalInput.dispatchEvent(new Event('input'));
+    totalInput.dispatchEvent(new Event('blur'));
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Total must be greater than 0.');
+    });
+
+
+    /* DOM test these tests are used to verify use visible behaviour, not just logic */
+    it('shows cross-field validation message when status is cancelled and total is greater than 0', () => {
+      const customerInput: HTMLInputElement = fixture.nativeElement.querySelector('#customerName');
+      const totalInput: HTMLInputElement = fixture.nativeElement.querySelector('#total');
+      const statusSelect: HTMLInputElement = fixture.nativeElement.querySelector('#status');
+
+      customerInput.value = 'Acme Ltd';
+      customerInput.dispatchEvent(new Event('input'));
+
+      totalInput.value = '5';
+      totalInput.dispatchEvent(new Event('input'));
+
+      statusSelect.value = 'cancelled';
+      statusSelect.dispatchEvent(new Event('change'));
+
+      component.orderForm.markAllAsTouched();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Cancelled orders must have a total of 0.');
+
+    });
 
 });
 

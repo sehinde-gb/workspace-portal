@@ -10,5 +10,9 @@
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.d.ts"
-  ]
+  ],
+  "references": [
+  { "path": "./tsconfig.app.json" },
+  { "path": "./tsconfig.spec.json" } // <--- This must be here
+]
 }

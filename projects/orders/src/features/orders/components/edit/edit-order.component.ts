@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit, Signal, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Order } from "shared-data";
 import { OrderEventsService } from "shared-events";
+import { notBlankValidator } from "../../../../app/core/validators/not-blank.validator";
 
 
 
@@ -31,11 +32,11 @@ export class EditOrderComponent implements OnInit {
   orderForm = new FormGroup({
     customerName: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(2)]
+      validators: [Validators.required, Validators.minLength(2), notBlankValidator()]
     }),
     total: new FormControl(0, {
       nonNullable: true,
-      validators: [Validators.required, Validators.min(1)]
+      validators: [Validators.required, Validators.min(0)]
     }),
     status: new FormControl<Order['status']>('pending', {
       nonNullable: true,
